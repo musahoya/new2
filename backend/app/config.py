@@ -9,22 +9,22 @@ class Settings(BaseSettings):
     """환경 변수 설정"""
 
     # API Keys
-    anthropic_api_key: str
+    google_gemini_api_key: str
     brave_search_api_key: Optional[str] = None
-    google_search_api_key: Optional[str] = None
-    google_search_engine_id: Optional[str] = None
 
     # 서버 설정
     host: str = "0.0.0.0"
     port: int = 8000
     debug: bool = True
 
-    # Claude 설정
-    claude_model: str = "claude-3-5-sonnet-20241022"
+    # Gemini 설정
+    gemini_model: str = "gemini-2.0-flash-exp"
+    gemini_api_url: str = "https://generativelanguage.googleapis.com/v1beta/models"
     max_tokens: int = 4096
 
     # 웹 검색 설정
     search_results_limit: int = 10
+    search_engine: str = "auto"  # "auto", "brave", "duckduckgo"
 
     class Config:
         env_file = ".env"
