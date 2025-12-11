@@ -13,11 +13,11 @@ echo "📦 의존성을 확인합니다..."
 pip install -r requirements.txt --quiet
 
 echo ""
-echo "✨ Streamlit 앱이 브라우저에서 열립니다."
-echo "📍 주소: http://localhost:8501"
+echo "✨ Flask 앱이 실행됩니다."
+echo "📍 주소: http://localhost:5000"
 echo ""
 echo "⚠️  백엔드 서버가 실행 중인지 확인하세요! (http://localhost:8000)"
 echo ""
 
-# Streamlit 실행
-streamlit run app.py
+# Flask 실행
+python app.py

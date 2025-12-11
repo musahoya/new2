@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ 프롬프트 엔지니어링 자동화</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="container">
+            <h1 class="main-title">✨ 프롬프트 엔지니어링 자동화</h1>
+            <p class="subtitle">AI가 최적화된 프롬프트를 자동으로 생성합니다</p>
+        </div>
+    </header>
+
+    <!-- 메인 컨테이너 -->
+    <div class="container">
+        <!-- 진행 단계 표시 -->
+        <div class="progress-bar">
+            <div class="step active" id="step-indicator-1">
+                <div class="step-number">1</div>
+                <div class="step-label">입력</div>
+            </div>
+            <div class="step" id="step-indicator-2">
+                <div class="step-number">2</div>
+                <div class="step-label">분석 확인</div>
+            </div>
+            <div class="step" id="step-indicator-3">
+                <div class="step-number">3</div>
+                <div class="step-label">전략 선택</div>
+            </div>
+            <div class="step" id="step-indicator-4">
+                <div class="step-number">4</div>
+                <div class="step-label">완성</div>
+            </div>
+        </div>
+
+        <!-- 1단계: 입력 -->
+        <div class="step-content active" id="step-1">
+            <div class="card">
+                <h2>📝 1단계: 무엇을 도와드릴까요?</h2>
+                <p class="description">원하는 내용을 구체적으로 입력하세요. AI가 자동으로 분석하고 최신 트렌드를 수집합니다.</p>
+
+                <textarea
+                    id="user-query"
+                    class="input-textarea"
+                    placeholder="예: 제주도 3박4일 여행 계획 짜줘&#10;예: 2025년 반도체 산업 투자 전망 분석&#10;예: 겨울 서울 데이트 코스 블로그 글"
+                    rows="6"
+                ></textarea>
+
+                <div class="examples">
+                    <p><strong>💡 팁:</strong></p>
+                    <ul>
+                        <li>구체적으로 입력할수록 좋아요</li>
+                        <li>원하는 형식을 명시하세요 (블로그, 리포트 등)</li>
+                        <li>대상 독자를 언급하세요</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" onclick="analyzeQuery()">
+                    🚀 분석 시작
+                </button>
+            </div>
+        </div>
+
+        <!-- 2단계: 분석 결과 확인 -->
+        <div class="step-content" id="step-2">
+            <div class="card">
+                <h2>📊 2단계: 분석 결과 확인</h2>
+
+                <div class="analysis-grid">
+                    <div class="analysis-box">
+                        <h3>🎯 의도 분석</h3>
+                        <div id="intent-result"></div>
+                    </div>
+
+                    <div class="analysis-box">
+                        <h3>🔥 수집된 트렌드 TOP 10</h3>
+                        <div id="trends-result"></div>
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <h3>💬 트렌드 요약</h3>
+                    <p id="trends-summary"></p>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">
+                        ⬅️ 다시 입력
+                    </button>
+                    <button class="btn btn-primary" onclick="generatePrompts()">
+                        ✅ 맞아요! 계속하기
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3단계: 프롬프트 선택 -->
+        <div class="step-content" id="step-3">
+            <div class="card">
+                <h2>✨ 3단계: 프롬프팅 전략 선택</h2>
+                <p class="description">5가지 전략을 확인하고 원하는 것을 선택하세요</p>
+
+                <div id="prompts-container"></div>
+
+                <button class="btn btn-secondary" onclick="goToStep(2)">
+                    ⬅️ 분석 결과로 돌아가기
+                </button>
+            </div>
+        </div>
+
+        <!-- 4단계: 최종 프롬프트 -->
+        <div class="step-content" id="step-4">
+            <div class="card">
+                <h2>🎉 완성된 프롬프트</h2>
+
+                <div class="success-message">
+                    <p id="selected-strategy-name"></p>
+                </div>
+
+                <div class="prompt-display">
+                    <div class="prompt-header">
+                        <h3>📄 완성된 프롬프트</h3>
+                        <button class="btn-copy" onclick="copyPrompt()">
+                            📋 복사하기
+                        </button>
+                    </div>
+                    <pre id="final-prompt" class="prompt-content"></pre>
+                </div>
+
+                <div class="info-box">
+                    💡 위 프롬프트를 복사하여 ChatGPT, Claude 등 AI 서비스에 붙여넣으세요!
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(3)">
+                        🔄 다른 전략 보기
+                    </button>
+                    <button class="btn btn-primary" onclick="restart()">
+                        🆕 새로 시작하기
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 로딩 오버레이 -->
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="spinner"></div>
+            <p id="loading-message">처리 중...</p>
+        </div>
+    </div>
+
+    <!-- 사이드바 정보 -->
+    <aside class="sidebar">
+        <div class="sidebar-card">
+            <h3>📚 프롬프팅 전략</h3>
+            <div class="strategy-info">
+                <p><strong>🧠 CoT</strong><br>복잡한 분석</p>
+                <p><strong>📝 Few-Shot</strong><br>블로그 글</p>
+                <p><strong>👨‍🏫 Meta</strong><br>전문 리뷰</p>
+                <p><strong>🔄 Self-Refine</strong><br>고품질</p>
+                <p><strong>📊 Structured</strong><br>보고서</p>
+            </div>
+        </div>
+
+        <div class="sidebar-card">
+            <h3>💡 사용 팁</h3>
+            <ul>
+                <li>구체적으로 입력하세요</li>
+                <li>형식을 명시하세요</li>
+                <li>대상을 언급하세요</li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <p>Made with ❤️ and AI | 프롬프트 엔지니어링 자동화 v1.0</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -58,12 +58,12 @@ python -m uvicorn app.main:app --reload
 터미널 2 (프론트엔드):
 ```bash
 cd frontend
-streamlit run app.py
+python app.py
 ```
 
 ### 5. 사용
 
-1. 브라우저에서 `http://localhost:8501` 접속
+1. 브라우저에서 `http://localhost:5000` 접속
 2. 원하는 내용 입력
 3. AI가 자동으로 분석 및 프롬프트 생성
 4. 생성된 프롬프트를 복사하여 사용
