@@ -2,7 +2,7 @@
 의도 파악 엔진
 사용자의 쿼리를 분석하여 의도, 키워드, 대상 독자 등을 파악합니다.
 """
-from anthropic import Anthropic
+import httpx
 from ..config import settings
 from ..models.schemas import IntentAnalysisResult, IntentCategory, OutputType
 import json
@@ -12,7 +12,9 @@ class IntentAnalyzer:
     """사용자 의도 분석기"""
 
     def __init__(self):
-        self.client = Anthropic(api_key=settings.anthropic_api_key)
+        self.api_key = settings.google_gemini_api_key
+        self.model = settings.gemini_model
+        self.api_url = settings.gemini_api_url
 
     async def analyze(self, user_query: str) -> IntentAnalysisResult:
         """
@@ -50,17 +52,41 @@ JSON만 반환하고 다른 설명은 하지 마세요.
 """
 
         try:
-            message = self.client.messages.create(
-                model=settings.claude_model,
-                max_tokens=1024,
-                messages=[{"role": "user", "content": prompt}],
-            )
+            async with httpx.AsyncClient() as client:
+                url = f"{self.api_url}/{self.model}:generateContent?key={self.api_key}"
 
-            # 응답에서 JSON 추출
-            response_text = message.content[0].text.strip()
+                payload = {
+                    "contents": [{
+                        "parts": [{
+                            "text": prompt
+                        }]
+                    }],
+                    "generationConfig": {
+                        "temperature": 0.3,
+                        "maxOutputTokens": 1024,
+                    }
+                }
 
-            # JSON 파싱
-            result_dict = json.loads(response_text)
+                response = await client.post(url, json=payload, timeout=30.0)
+                response.raise_for_status()
+
+                result = response.json()
+
+                # Gemini 응답에서 텍스트 추출
+                text = result['candidates'][0]['content']['parts'][0]['text']
+
+                # JSON 추출 (마크다운 코드 블록 제거)
+                text = text.strip()
+                if text.startswith('```json'):
+                    text = text[7:]
+                if text.startswith('```'):
+                    text = text[3:]
+                if text.endswith('```'):
+                    text = text[:-3]
+                text = text.strip()
+
+                # JSON 파싱
+                result_dict = json.loads(text)
 
             # IntentAnalysisResult 객체로 변환
             return IntentAnalysisResult(
