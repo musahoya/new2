@@ -1,4 +1,5 @@
 @echo off
+setlocal enabledelayedexpansion
 chcp 65001 >nul
 title 프롬프트 엔지니어링 자동화
 
@@ -9,10 +10,33 @@ echo ║   프롬프트 엔지니어링 자동화 시스템                ║
 echo ║   Prompt Engineering Automation                    ║
 echo ╚════════════════════════════════════════════════════╝
 echo.
-echo [단계 1] 환경 설정 확인 중...
-echo.
 
 cd /d "%~dp0"
+
+REM Python 버전 선택 확인
+if exist .python_version (
+    set /p PYTHON_CMD=<.python_version
+    echo Python 명령어: !PYTHON_CMD!
+) else (
+    REM py launcher 시도
+    where py >nul 2>&1
+    if errorlevel 1 (
+        set PYTHON_CMD=python
+    ) else (
+        REM Python 3.11 우선 시도
+        py -3.11 --version >nul 2>&1
+        if errorlevel 1 (
+            set PYTHON_CMD=python
+        ) else (
+            set PYTHON_CMD=py -3.11
+            echo ✅ Python 3.11 자동 감지
+        )
+    )
+)
+
+echo.
+echo [단계 1] 환경 설정 확인 중...
+echo.
 
 REM .env 파일 확인
 if not exist backend\.env (
@@ -60,8 +84,8 @@ echo [단계 2] 의존성 설치 중...
 echo.
 
 REM Python 버전 확인
-for /f "tokens=2" %%i in ('python --version 2^>^&1') do set PYTHON_VERSION=%%i
-echo Python 버전: %PYTHON_VERSION%
+for /f "tokens=2" %%i in ('%PYTHON_CMD% --version 2^>^&1') do set PYTHON_VERSION=%%i
+echo 사용 중인 Python: %PYTHON_VERSION%
 echo.
 
 REM Python 3.13 경고
@@ -70,16 +94,17 @@ if not errorlevel 1 (
     echo ⚠️  Python 3.13 감지! 호환성 문제가 있을 수 있습니다.
     echo    Python 3.11 권장 - https://www.python.org/downloads/release/python-3119/
     echo.
+    echo    SELECT_PYTHON.bat 실행하여 버전 변경 가능
     timeout /t 3 /nobreak >nul
 )
 
 echo [2-1] pip 업그레이드...
-python -m pip install --upgrade pip --quiet 2>nul
+%PYTHON_CMD% -m pip install --upgrade pip --quiet 2>nul
 
 echo [2-2] 백엔드 의존성 설치...
 cd backend
-python -m pip install --upgrade setuptools wheel --quiet 2>nul
-pip install -r requirements.txt --quiet
+%PYTHON_CMD% -m pip install --upgrade setuptools wheel --quiet 2>nul
+%PYTHON_CMD% -m pip install -r requirements.txt --quiet
 
 if errorlevel 1 (
     echo.
@@ -106,7 +131,7 @@ cd ..
 
 echo [2-3] 프론트엔드 의존성 설치...
 cd frontend
-pip install -r requirements.txt --quiet
+%PYTHON_CMD% -m pip install -r requirements.txt --quiet
 if errorlevel 1 (
     echo ❌ 프론트엔드 의존성 설치 실패
     echo    (보통 백엔드만 설치되면 괜찮습니다)
@@ -134,14 +159,14 @@ echo.
 timeout /t 3 /nobreak >nul
 
 REM 백엔드 서버 시작 (새 창)
-start "백엔드 서버 (포트 8000)" cmd /k "cd /d %~dp0backend && echo 백엔드 서버 시작... && python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+start "백엔드 서버 (포트 8000)" cmd /k "cd /d %~dp0backend && echo 백엔드 서버 시작... && %PYTHON_CMD% -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
 
 REM 백엔드가 시작될 시간 대기
 echo 백엔드 서버 시작 대기 중...
 timeout /t 5 /nobreak >nul
 
 REM 프론트엔드 서버 시작 (새 창)
-start "프론트엔드 서버 (포트 5000)" cmd /k "cd /d %~dp0frontend && echo 프론트엔드 서버 시작... && python app.py"
+start "프론트엔드 서버 (포트 5000)" cmd /k "cd /d %~dp0frontend && echo 프론트엔드 서버 시작... && %PYTHON_CMD% app.py"
 
 REM 브라우저가 시작될 시간 대기
 timeout /t 3 /nobreak >nul
