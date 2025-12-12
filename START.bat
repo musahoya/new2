@@ -59,23 +59,58 @@ echo.
 echo [단계 2] 의존성 설치 중...
 echo.
 
-echo [2-1] 백엔드 의존성 설치...
+REM Python 버전 확인
+for /f "tokens=2" %%i in ('python --version 2^>^&1') do set PYTHON_VERSION=%%i
+echo Python 버전: %PYTHON_VERSION%
+echo.
+
+REM Python 3.13 경고
+echo %PYTHON_VERSION% | findstr /C:"3.13" >nul
+if not errorlevel 1 (
+    echo ⚠️  Python 3.13 감지! 호환성 문제가 있을 수 있습니다.
+    echo    Python 3.11 권장 - https://www.python.org/downloads/release/python-3119/
+    echo.
+    timeout /t 3 /nobreak >nul
+)
+
+echo [2-1] pip 업그레이드...
+python -m pip install --upgrade pip --quiet 2>nul
+
+echo [2-2] 백엔드 의존성 설치...
 cd backend
+python -m pip install --upgrade setuptools wheel --quiet 2>nul
 pip install -r requirements.txt --quiet
+
 if errorlevel 1 (
-    echo ❌ 백엔드 의존성 설치 실패
+    echo.
+    echo ════════════════════════════════════════════════════
+    echo  ❌ 백엔드 의존성 설치 실패!
+    echo ════════════════════════════════════════════════════
+    echo.
+    echo Python 3.13 호환성 문제일 수 있습니다.
+    echo.
+    echo 해결 방법:
+    echo [1] Python 3.11 설치 (가장 권장)
+    echo     https://www.python.org/downloads/release/python-3119/
+    echo.
+    echo [2] INSTALL.bat 실행 (자동 진단)
+    echo.
+    echo [3] 관리자 권한으로 실행
+    echo     이 파일 우클릭 → "관리자 권한으로 실행"
+    echo.
+    echo ════════════════════════════════════════════════════
     pause
     exit /b 1
 )
 cd ..
 
-echo [2-2] 프론트엔드 의존성 설치...
+echo [2-3] 프론트엔드 의존성 설치...
 cd frontend
 pip install -r requirements.txt --quiet
 if errorlevel 1 (
     echo ❌ 프론트엔드 의존성 설치 실패
-    pause
-    exit /b 1
+    echo    (보통 백엔드만 설치되면 괜찮습니다)
+    timeout /t 2 /nobreak >nul
 )
 cd ..
 
