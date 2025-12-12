@@ -67,7 +67,7 @@ if not errorlevel 1 (
 )
 
 echo [2/3] pip 업그레이드 중...
-%PYTHON_CMD% -m pip install --upgrade pip --quiet
+%PYTHON_CMD% -m pip install --upgrade pip
 if errorlevel 1 (
     echo ⚠️  pip 업그레이드 실패 (무시하고 계속)
 )
@@ -79,9 +79,11 @@ echo 이 작업은 1-2분 정도 걸릴 수 있습니다...
 echo.
 
 REM 먼저 기본 패키지 설치
-%PYTHON_CMD% -m pip install --upgrade setuptools wheel --quiet
+echo setuptools, wheel 설치 중...
+%PYTHON_CMD% -m pip install --upgrade setuptools wheel
 
-REM requirements.txt 설치
+echo.
+echo requirements.txt 패키지 설치 중...
 %PYTHON_CMD% -m pip install -r requirements.txt
 
 if errorlevel 1 (

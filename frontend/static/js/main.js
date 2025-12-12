@@ -196,7 +196,7 @@ function displayFinalPrompt(prompt) {
 }
 
 // 프롬프트 복사
-function copyPrompt() {
+function copyPrompt(event) {
     const promptText = document.getElementById('final-prompt').textContent;
 
     // 클립보드에 복사
