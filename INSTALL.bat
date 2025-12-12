@@ -8,11 +8,24 @@ echo.
 
 cd /d "%~dp0backend"
 
+REM Python 명령어 설정
+set PYTHON_CMD=python
+
+REM py launcher로 Python 3.11 확인
+where py >nul 2>&1
+if not errorlevel 1 (
+    py -3.11 --version >nul 2>&1
+    if not errorlevel 1 (
+        set PYTHON_CMD=py -3.11
+        echo ✅ Python 3.11 사용
+    )
+)
+
 REM Python 버전 확인
 echo [1/3] Python 버전 확인 중...
 echo.
 
-python --version
+%PYTHON_CMD% --version
 if errorlevel 1 (
     echo ❌ Python이 설치되지 않았습니다!
     echo.
@@ -23,7 +36,7 @@ if errorlevel 1 (
 )
 
 REM Python 버전 추출
-for /f "tokens=2" %%i in ('python --version') do set PYTHON_VERSION=%%i
+for /f "tokens=2" %%i in ('%PYTHON_CMD% --version') do set PYTHON_VERSION=%%i
 echo Python 버전: %PYTHON_VERSION%
 echo.
 
@@ -54,7 +67,7 @@ if not errorlevel 1 (
 )
 
 echo [2/3] pip 업그레이드 중...
-python -m pip install --upgrade pip --quiet
+%PYTHON_CMD% -m pip install --upgrade pip --quiet
 if errorlevel 1 (
     echo ⚠️  pip 업그레이드 실패 (무시하고 계속)
 )
@@ -66,10 +79,10 @@ echo 이 작업은 1-2분 정도 걸릴 수 있습니다...
 echo.
 
 REM 먼저 기본 패키지 설치
-python -m pip install --upgrade setuptools wheel --quiet
+%PYTHON_CMD% -m pip install --upgrade setuptools wheel --quiet
 
 REM requirements.txt 설치
-python -m pip install -r requirements.txt
+%PYTHON_CMD% -m pip install -r requirements.txt
 
 if errorlevel 1 (
     echo.
