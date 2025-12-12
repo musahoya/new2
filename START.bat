@@ -164,7 +164,8 @@ start "백엔드 서버 (포트 8000)" cmd /k "cd /d %~dp0backend && echo 백엔
 
 REM 백엔드가 시작될 시간 대기
 echo 백엔드 서버 시작 대기 중...
-timeout /t 5 /nobreak >nul
+echo (이 과정은 10초 정도 걸립니다...)
+timeout /t 10 /nobreak >nul
 
 REM 프론트엔드 서버 시작 (새 창)
 start "프론트엔드 서버 (포트 5000)" cmd /k "cd /d %~dp0frontend && echo 프론트엔드 서버 시작... && %PYTHON_CMD% app.py"
