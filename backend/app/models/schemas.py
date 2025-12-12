@@ -2,7 +2,7 @@
 데이터 스키마 정의
 """
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 from enum import Enum
 
 
@@ -95,4 +95,4 @@ class PromptResponse(BaseModel):
 
     selected_strategy: PromptStrategyType
     final_prompt: str
-    metadata: Dict[str, any]
+    metadata: Dict[str, Any]
