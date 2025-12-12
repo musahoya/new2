@@ -99,12 +99,12 @@ if not errorlevel 1 (
 )
 
 echo [2-1] pip 업그레이드...
-%PYTHON_CMD% -m pip install --upgrade pip --quiet 2>nul
+%PYTHON_CMD% -m pip install --upgrade pip
 
 echo [2-2] 백엔드 의존성 설치...
 cd backend
-%PYTHON_CMD% -m pip install --upgrade setuptools wheel --quiet 2>nul
-%PYTHON_CMD% -m pip install -r requirements.txt --quiet
+%PYTHON_CMD% -m pip install --upgrade setuptools wheel
+%PYTHON_CMD% -m pip install -r requirements.txt
 
 if errorlevel 1 (
     echo.
@@ -130,8 +130,9 @@ if errorlevel 1 (
 cd ..
 
 echo [2-3] 프론트엔드 의존성 설치...
+cd ..
 cd frontend
-%PYTHON_CMD% -m pip install -r requirements.txt --quiet
+%PYTHON_CMD% -m pip install -r requirements.txt
 if errorlevel 1 (
     echo ❌ 프론트엔드 의존성 설치 실패
     echo    (보통 백엔드만 설치되면 괜찮습니다)
